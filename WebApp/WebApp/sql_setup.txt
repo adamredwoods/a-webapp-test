@@ -1,0 +1,6 @@
+﻿
+sql setup
+
+create database webapp_db;
+use webapp_db;
+create table UserData(Id int NOT NULL PRIMARY KEY, Name varchar(255), Password varchar(512), Token varchar(MAX), GroupRole int);
