@@ -73,11 +73,11 @@ export class EditTicket extends Component {
             <div>
                 <h1>Edit Ticket #{this.state.ticketId}</h1>
                 <form onSubmit={this.onSubmit} method="post">
+                    <h5>
+                        Status:
+                    </h5>
                     <p>
-                        <label>
-                            Status:
-                            <input type="text" name="status" onChange={this.updateState} value={this.state.status}/>
-                        </label>
+                        <input type="text" name="status" onChange={this.updateState} value={this.state.status}/>
                     </p>
 
                     <h5>

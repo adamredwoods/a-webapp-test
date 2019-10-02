@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Glyphicon, Nav, Navbar, NavItem } from 'react-bootstrap';
+import { Nav, Navbar, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import './NavMenu.css';
 
@@ -20,27 +20,27 @@ export class NavMenu extends Component {
                     <Nav>
                         <LinkContainer to={'/'} exact>
                             <NavItem>
-                                <Glyphicon glyph='home' /> Home
+                                Home
                             </NavItem>
                         </LinkContainer>
                         <LinkContainer to={'/login'}>
                             <NavItem>
-                                <Glyphicon glyph='login' /> Login
+                                Login
                              </NavItem>
                         </LinkContainer>
                         <LinkContainer to={'/logout'}>
                             <NavItem>
-                                <Glyphicon glyph='logout' /> Logout
+                                Logout
                              </NavItem>
                         </LinkContainer>
                         <LinkContainer to={'/createticket'}>
                             <NavItem>
-                                <Glyphicon glyph='th-list' /> Create New Ticket
+                                Create New Ticket
                             </NavItem>
                         </LinkContainer>
                         <LinkContainer to={'/viewtickets'}>
                             <NavItem>
-                                <Glyphicon glyph='th-list' /> View Tickets
+                                View Tickets
                             </NavItem>
                         </LinkContainer>
                     </Nav>

@@ -30,7 +30,10 @@ namespace WebApp.Controllers
             if (user != null && user.Claims != null)
             {
                 Permission role = UserData.GetRoleFromClaim(User);
-                if (role >= 0)
+                bool viewable = role.HasFlag(Permission.ViewTicket) || role.HasFlag(Permission.ViewAll);
+                bool viewAll = role.HasFlag(Permission.ViewAll);
+
+                if ( role >= 0 && viewable )
                 {
                     int userId = UserData.GetUserIdFromClaim(User);
                     List<Ticket> tickets = null;
@@ -38,18 +41,18 @@ namespace WebApp.Controllers
                     //TODO: Add view all roles here
                     if(idFromPost == null)
                     {
-                        tickets = _context.Ticket.Where(t => t.OwnerId == userId).ToList();
-
+                        tickets = _context.Ticket.Where(t => (t.OwnerId == userId || viewAll)).ToList();
                     }
                     else
                     {
                         //int idToFind = Int32.Parse(idFromPost);
-                        tickets = new List<Ticket>() { _context.Ticket.FirstOrDefault(t => t.OwnerId == userId && t.Id == idFromPost) };
+                        tickets = new List<Ticket>() { _context.Ticket.FirstOrDefault(t => (t.OwnerId == userId || viewAll) && t.Id == idFromPost) };
                     }
 
+                    var canDelete = role.HasFlag(Permission.DeleteAll);
                     return StatusCode(200, Json(new
                         {
-                            role,
+                            canDelete,
                             tickets
                         }
                     ));
@@ -73,16 +76,26 @@ namespace WebApp.Controllers
         {
             int newId = _context.Ticket.Count() >0 ? _context.Ticket.Max(t => t.Id)+1 : 0;
             int userId = UserData.GetUserIdFromClaim(User);
-            _context.Ticket.Add(new Ticket
+            bool canCreate = UserData.GetRoleFromClaim(User).HasFlag(Permission.CreateTicket);
+
+            if(canCreate)
+            {
+                _context.Ticket.Add(new Ticket
                 {
                     Id = newId,
                     OwnerId = userId,
                     Status = ticketFromPost.Status,
                     Words = ticketFromPost.Words
                 });
-            _context.SaveChanges();
+                _context.SaveChanges();
+
+                return StatusCode(200);
+            }
+            else
+            {
+                return StatusCode(403);
+            }
             
-            return StatusCode(200);
         }
 
         [System.Web.Http.Authorize]
@@ -90,19 +103,57 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<ActionResult> Update([FromBody] Ticket ticketFromPost)
         {
-            //TODO: check if ticket id updated is allowed by this user
+            bool canUpdateAll = UserData.GetRoleFromClaim(User).HasFlag(Permission.UpdateAll);
+            int userId = UserData.GetUserIdFromClaim(User);
 
             int oldId = ticketFromPost.Id;
-            Permission role = UserData.GetRoleFromClaim(User);
 
             Ticket ticket = _context.Ticket.FirstOrDefault(t => t.Id == ticketFromPost.Id);
-            ticket.Status = ticketFromPost.Status;
-            ticket.Words = ticketFromPost.Words;
+            if(canUpdateAll || ticket.OwnerId == userId)
+            {
+                ticket.Status = ticketFromPost.Status;
+                ticket.Words = ticketFromPost.Words;
 
-            _context.Ticket.Update(ticket);
-            _context.SaveChanges();
+                _context.Ticket.Update(ticket);
+                _context.SaveChanges();
 
-            return StatusCode(200);
+                return StatusCode(200);
+
+            }
+            else
+            {
+                return StatusCode(403);
+            }
+        }
+
+        [System.Web.Http.Authorize]
+        [Route("[action]/{idFromPost}")]
+        [HttpPost]
+        public async Task<ActionResult> Delete(int idFromPost)
+        {
+            bool canDeleteAll = UserData.GetRoleFromClaim(User).HasFlag(Permission.DeleteAll);
+
+            if(canDeleteAll)
+            {
+                Ticket ticket = _context.Ticket.FirstOrDefault(t => t.Id == idFromPost);
+                if(ticket != null)
+                {
+                    _context.Ticket.Remove(ticket);
+                    _context.SaveChanges();
+
+                    return StatusCode(200);
+
+                }
+                else
+                {
+                    return StatusCode(404);
+                }
+
+            }
+            else
+            {
+                return StatusCode(403);
+            }
         }
     }
 }

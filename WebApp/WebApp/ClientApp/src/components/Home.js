@@ -7,8 +7,7 @@ export class Home extends Component {
     return (
       <div>
         <h1>Hello, world!</h1>
-        <p>Welcome to your new single-page application.</p>
-        
+            <p>Welcome to your new single-page application.</p>
       </div>
     );
   }

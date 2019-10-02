@@ -56,10 +56,12 @@ export class CreateTicket extends Component {
             <div>
                 <h1>Create Ticket</h1>
                 <form onSubmit={this.onSubmit} method="post">
-                    <label>
+                    <h5>
                         Status:
-                        <input type="text" name="status" onChange={this.updateState} value={this.state.status}/>
-                    </label>
+                    </h5>
+                    <p>
+                        <input type="text" name="status" onChange={this.updateState} value={this.state.status} />
+                    </p>
                     <h5>
                         Words:
                     </h5>

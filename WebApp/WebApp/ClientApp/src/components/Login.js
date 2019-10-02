@@ -2,23 +2,38 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 export class Login extends Component {
-  displayName = Login.name
+    displayName = Login.name
 
-  constructor(props) {
-    super(props);
-      this.state = {
-          username: '',
-          password: ''
-      };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            username: '',
+            password: '',
+            currentUser: ''
+        };
+    }
 
-    validateUser = (e) => {
+    componentDidMount = () => {
+        axios.get('/user/info').then(
+            (res) => {
+                this.setState({
+                    currentUser: res.data.value.name
+                });
+            }
+        );
+    }
+
+    validateUser = (e, username) => {
         e.preventDefault();
-        var user = axios.post('/user/login', {
-            username: this.state.username,
-            password: this.state.password
+        const parent = this;
+        axios.post('/user/login', {
+            Name: this.state.username,
+            Password: this.state.password
         }).then(function (res) {
-            console.log(res.data);
+            //console.log(res.data);
+            parent.setState(prevState => ({
+                currentUser: prevState.username
+            }));
         }, function (err) {
             console.log('error', err);
         });
@@ -37,22 +52,29 @@ export class Login extends Component {
         }
     }
 
-  render() {
-    return (
-      <div>
-            <h1>Login</h1>
-            <form action="/Login" method="post" onSubmit={this.validateUser}>
-                <label>
-                    Username:
-                    <input type="text" name="username" onChange={this.updateState} value={this.state.username} />
-                </label>
-                <label>
-                    Password:
-                    <input type="password" name="password" onChange={this.updateState} />
-                </label>
-                <button>Login</button>
-            </form>
-      </div>
-    );
-  }
+    render() {
+        const LoginPrompt = this.state.currentUser === '' ? (
+                <form action="/Login" method="post" onSubmit={this.validateUser}>
+                    <label>
+                        Username:
+                            <input type="text" name="username" onChange={this.updateState} value={this.state.username} />
+                    </label>
+                    <br />
+                    <label>
+                        Password:
+                            <input type="password" name="password" onChange={this.updateState} />
+                    </label>
+                    <br />
+                    <button>Login</button>
+                </form>
+            ) : null;
+        return (
+            <div>
+                <h1>Login</h1>
+                <p>Current login name: {this.state.currentUser}</p>
+                {LoginPrompt}
+                
+            </div>
+        );
+    }
 }

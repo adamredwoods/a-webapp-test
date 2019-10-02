@@ -38,7 +38,8 @@ namespace WebApp.Controllers
  
                 return StatusCode(200, Json( new
                     {
-                        userData.Name
+                        userData.Name,
+                        userData.GroupRole
                     }
                 ));
             }
@@ -58,16 +59,70 @@ namespace WebApp.Controllers
             return StatusCode(200);
         }
 
+        [Route("[action]")]
+        [AllowAnonymous]
+        public async Task<ActionResult> Info()
+        {
+            Claim userObject = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+            Permission role = UserData.GetRoleFromClaim(User);
+            if(userObject != null)
+            {
+                return StatusCode(200, Json ( new
+                    {
+                        Name = userObject.Value,
+                        Role = role
+                    }     
+                ));
+
+            }
+            else
+            {
+                return StatusCode(404, Json(new
+                    {
+                        Name = String.Empty,
+                        Role = 0
+                    }
+                ));
+            }
+        }
+
         public async Task<UserData> GetUserData(string username, string password)
         {
-            // should check in the database
-            UserData user = new UserData
+            //TODO: should check in the database
+            List<UserData> fakeUsers = new List<UserData>
             {
-                Name = "myself",
-                Password = "password",
-                GroupRole = UserGroup.User(),
-                Id = 1
+                new UserData
+                {
+                    Id = 1,
+                    Name = "User1",
+                    Password = "123456",
+                    GroupRole = UserGroup.User()
+                },
+                new UserData
+                {
+                    Id = 2,
+                    Name = "HelpdeskUser1",
+                    Password = "123456",
+                    GroupRole = UserGroup.HelpdeskUser()
+                },
+                new UserData
+                {
+                    Id = 3,
+                    Name = "HelpdeskUser2",
+                    Password = "123456",
+                    GroupRole = UserGroup.HelpdeskUser()
+                },
+                new UserData
+                {
+                    Id = 4,
+                    Name = "HelpdeskTeamMember",
+                    Password = "123456",
+                    GroupRole = UserGroup.HelpdeskTeamMember()
+                }
             };
+
+            UserData user = fakeUsers.FirstOrDefault(u => username == u.Name);
+
             return user;
         }
         
