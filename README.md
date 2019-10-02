@@ -43,7 +43,7 @@ The user database was faked, because I ran into problems seeding it and ran out 
 
 SQL access uses Linq commands.
 
-Problems:
+### Current Problems:
 - login name could be stored at client level (to stop the lag between displaying login fields or not)
 - could use database seeding for faster setup
 - security issues
